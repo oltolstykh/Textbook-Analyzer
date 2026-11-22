@@ -1,10 +1,10 @@
 /* Эталоны анализатора, кроме списка лексики.
-   Версия: res-0.4 (2026-11-21) – эталоны режима «Тексты», сопоставление расширенных грамматических правил с CEFR-J Grammar Profile, конструкции синтаксического разбора. Все уровни – рабочие, подлежат сверке
+   Версия: res-0.5 (2026-11-22) – эталоны методики упражнений method-0.1 (тип по степени свободы, этапы, правила последовательности урока), критерий R7 и рубрика урока L1-L2. Предыдущая res-0.4 (2026-11-21) – эталоны режима «Тексты», сопоставление расширенных грамматических правил с CEFR-J Grammar Profile, конструкции синтаксического разбора. Все уровни – рабочие, подлежат сверке
    с English Grammar Profile и English Vocabulary Profile. */
 (function (g) {
   const _t = g._t || (s => s);
   const R = {};
-  R.version = 'res-0.4';
+  R.version = 'res-0.5';
   R.LEVELS = ['A1','A2','B1','B2','C1','C2'];
 
   /* Инструктивные значения многозначных и «учебных» слов.
@@ -152,8 +152,8 @@
     { id:'repeat', name:_t('повторение за образцом'), verbs:['repeat','practise','practice','sing'] }
   ];
 
-  /* Рубрика – рабочая версия 0.1, подлежит согласованию с экспертами */
-  R.RUBRIC_VERSION = 'rubric-0.1';
+  /* Рубрика – рабочая версия 0.2 (R7 добавлен по sol06, с. 58-59), подлежит согласованию с экспертами */
+  R.RUBRIC_VERSION = 'rubric-0.2'; // rubric-0.2 – критерий R7 «Уместность задания»
   R.RUBRIC = [
     { code:'R1', name:_t('Понятность'), q:_t('Ясны ли последовательность действий, ожидаемый результат, форма работы и материал, на который опирается задание?'),
       a:[_t('0 – учащийся не может понять, что и с чем делать'),_t('1 – понятно главное действие, но неясен результат или материал'),_t('2 – действия, результат, форма работы и материал ясны')] },
@@ -167,6 +167,8 @@
       a:[_t('0 – образец нужен, но его нет или он противоречит инструкции'),_t('1 – образец есть, но неполный'),_t('2 – образец есть и соответствует (или не нужен)')] },
     { code:'R6', name:_t('Уровень инструкции и задания'), q:_t('Не сложнее ли инструкция самого упражнения? Есть ли на начальных уровнях опоры – образец, пиктограмма, перевод?'),
       a:[_t('0 – инструкция заметно сложнее задания, опор нет'),_t('1 – инструкция немного сложнее или опоры неполные'),_t('2 – инструкция не сложнее задания, опоры есть')] },
+    { code:'R7', name:_t('Уместность задания'), q:_t('Соответствует ли упражнение ведущей цели урока, этапу работы над материалом (ознакомление, тренировка, применение) и уровню группы? Есть ли опоры, нужные для выполнения?'),
+      a:[_t('0 – упражнение не связано с целью урока или не подходит этапу и уровню группы'),_t('1 – упражнение связано с целью, но не вполне соответствует этапу или уровню (нет нужных опор, задание преждевременно или избыточно)'),_t('2 – упражнение работает на цель урока, соответствует этапу и уровню группы, опоры достаточны')] },
     { code:'D1', name:_t('Параметры выполнения'), q:_t('Указаны ли время, объём высказывания, число ответов там, где они нужны?'),
       a:[_t('0 – параметры нужны, но не указаны'),_t('1 – указана часть параметров'),_t('2 – параметры указаны или не нужны')] },
     { code:'D2', name:_t('Форма работы'), q:_t('Не противоречит ли форма работы содержанию задания (Work in pairs при монологе)?'),
@@ -277,6 +279,98 @@
       a:[_t('0 – текст заметно сложнее или проще уровня и задачи'),_t('1 – текст немного выходит за уровень, задача выполнима с опорами'),_t('2 – текст соответствует уровню и задаче')] },
     { code:'TR6', name:_t('Пригодность для аспекта'), q:_t('Пригоден ли текст для заявленного аспекта – для чтения (композиция, заголовки, плотность информации), для аудирования (черты устной речи, избыточность, длина фраз), для языкового материала (частотность и наглядность изучаемого явления)?'),
       a:[_t('0 – текст не пригоден для аспекта'),_t('1 – пригоден с оговорками'),_t('2 – пригоден')] }
+  ];
+
+  /* ===================== Методика упражнений – эталоны method-0.1 =====================
+     Тип упражнения по степени свободы учащегося, этап работы над материалом, этап работы с текстом,
+     единица языкового материала и правила последовательности упражнений урока.
+     Критерии изложены своими словами, у каждого правила – ссылка на источник (ключ R.METHOD.SOURCES и страницы).
+     Страницы Солововой (2006) сверены по скану издания; у зарубежных пособий год и место издания в файлах
+     не указаны – они помечены для сверки. */
+  R.METHOD_VERSION = 'method-0.1';
+  R.METHOD = {
+    SOURCES: {
+      sol06: _t('Соловова Е. Н. Методика обучения иностранным языкам : базовый курс лекций : пособие для студентов пед. вузов и учителей. – 4-е изд. – М. : Просвещение, 2006. – 239 с.'),
+      harmer: _t('Harmer J. The Practice of English Language Teaching. – 3rd ed., completely revised and updated. – Longman [место и год издания сверить – в файле нет выходных данных].'),
+      scriv: _t('Scrivener J. Learning Teaching. The Essential Guide to English Language Teaching. – 3rd ed. – Macmillan [место и год издания сверить; страницы по текстовому слою скана].')
+    },
+    /* Шкала степени свободы – четыре типа отечественной методики (Соловова, 2006, с. 32),
+       их объединение в три группы (языковые, условно-речевые, речевые) и зарубежные соответствия */
+    TYPES: [
+      { id: 'sub',   n: 1, group: 'lang', name: _t('подстановочное'), en: 'controlled (substitution)',
+        def: _t('действия строго по аналогии с образцом или выбор из заданного – один правильный ответ'), src: 'sol06, с. 32; scriv, с. 168-169' },
+      { id: 'trans', n: 2, group: 'lang', name: _t('трансформационное'), en: 'controlled (transformation)',
+        def: _t('преобразование материала по правилу с избирательным использованием знаний'), src: 'sol06, с. 32, 113-114' },
+      { id: 'cond',  n: 3, group: 'cond', name: _t('условно-коммуникативное'), en: 'guided',
+        def: _t('учебная ситуация общения смоделирована близко к реальной, но учащийся следует установке и опорам'), src: 'sol06, с. 32, 116-117' },
+      { id: 'comm',  n: 4, group: 'speech', name: _t('подлинно коммуникативное'), en: 'communicative (authentic use)',
+        def: _t('общение с собственной целью высказывания, без регламентации языковых средств'), src: 'sol06, с. 32; harmer, с. 85; scriv, с. 127' }
+    ],
+    GROUPS: {
+      lang:   { name: _t('языковое (доречевое)'), en: 'controlled practice', src: 'sol06, с. 116' },
+      cond:   { name: _t('условно-речевое'), en: 'guided practice', src: 'sol06, с. 114, 116' },
+      speech: { name: _t('речевое'), en: 'free practice', src: 'sol06, с. 114, 116' }
+    },
+    /* Этапы работы над языковым материалом – ознакомление, тренировка, применение (выход в речь);
+       зарубежные соответствия – presentation, practice, production (PPP), Engage – Study – Activate */
+    PHASES: [
+      { id: 'intro', name: _t('ознакомление'), en: 'presentation / clarification (Study)', src: 'sol06, с. 115; scriv, с. 159-160; harmer, с. 84' },
+      { id: 'train', name: _t('тренировка'), en: 'practice / restricted output', src: 'sol06, с. 115; scriv, с. 159-160, 168' },
+      { id: 'apply', name: _t('применение'), en: 'production / authentic output (Activate)', src: 'sol06, с. 115; harmer, с. 84; scriv, с. 127' }
+    ],
+    /* Этапы работы с текстом для чтения и аудирования */
+    TEXT_STAGES: [
+      { id: 'pre',   name: _t('дотекстовый'), en: 'pre-reading / before listening', src: 'sol06, с. 136-138, 161-162' },
+      { id: 'while', name: _t('текстовый'), en: 'while-reading / while listening', src: 'sol06, с. 138-139, 162' },
+      { id: 'post',  name: _t('послетекстовый'), en: 'follow-up', src: 'sol06, с. 139, 163' }
+    ],
+    /* Единица языкового материала – система лексических упражнений «от простого к сложному» */
+    UNITS: [
+      { id: 'word',   n: 1, name: _t('слово') },
+      { id: 'phrase', n: 2, name: _t('словосочетание') },
+      { id: 'sent',   n: 3, name: _t('предложение') },
+      { id: 'text',   n: 4, name: _t('сверхфразовое единство') }
+    ],
+    UNITS_SRC: 'sol06, с. 93-98',
+    /* Правила последовательности упражнений урока. weight – вклад в показатель урока ПСУ */
+    RULES: [
+      { id: 'jump', weight: 1, name: _t('скачок'),
+        text: _t('Речевое задание (или условно-речевое после одних языковых) идёт без промежуточной тренировки – между предыдущим максимумом урока и заданием пропущена ступень шкалы свободы.'),
+        src: 'sol06, с. 32, 59, 115-116', alt: _t('Зарубежная методика допускает обратный порядок – задание до анализа языка (deep end, boomerang, test-teach-test).'), altSrc: 'harmer, с. 82-84; scriv, с. 179-180' },
+      { id: 'return', weight: 0.5, name: _t('возврат'),
+        text: _t('После речевого задания урок возвращается к языковому упражнению.'),
+        src: 'sol06, с. 59', alt: _t('Возврат может быть запланирован – этап анализа языка после задания (boomerang, patchwork у Хармера).'), altSrc: 'harmer, с. 84' },
+      { id: 'noApply', weight: 1, name: _t('нет выхода в речь'),
+        text: _t('В уроке есть тренировка, но нет речевого задания – этап применения пропущен.'),
+        src: 'sol06, с. 115' },
+      { id: 'textOrder', weight: 0.5, name: _t('этапы работы с текстом'),
+        text: _t('Послетекстовое задание стоит до текстового или текстовое задание идёт без дотекстового этапа.'),
+        src: 'sol06, с. 135-139, 160-163' },
+      { id: 'unitDrop', weight: 0, name: _t('от сложного к простому'),
+        text: _t('Языковое упражнение работает с меньшей единицей материала, чем предыдущее (текст, затем слово) – справочная отметка, в показатель не входит.'),
+        src: 'sol06, с. 59, 93' }
+    ],
+    /* Признаки для определения типа и этапа – регулярные выражения по тексту инструкции */
+    CUES: {
+      model: /\b(for example|e\.g\.|example|model|like this|as in the example|follow the example|look at the example)\b/,
+      support: /\b(in the box|from the box|words below|phrases below|use the (?:words|phrases|prompts|cues|questions|notes|ideas|expressions|useful language)|using the (?:words|phrases|prompts|cues|notes|ideas)|prompts?|cues?|useful language|to help you)\b/,
+      form: /\b(correct form|right form|in brackets|tense|past simple|present simple|present perfect|past continuous|present continuous|future|passive|comparative|superlative|gerund|infinitive|modal|conditional|reported speech|plural|negative form|question form|make (?:questions|negatives?|sentences)|rewrite|transform|change (?:the|these)|into the (?:passive|negative|plural|past)|use (?:the )?(?:verbs?|words?) in brackets)\b/,
+      comm: /\b(find out|guess|agree on|decide (?:together|on|which|what|who|where|how)|find someone who|survey|interview|imagine|persuade|convince|plan (?:a|an|the|your)|solve|what do you think|your opinion|do you agree|give reasons|why or why not|student a\b|student b\b|don'?t show|without (?:looking|showing)|find (?:the )?(?:\w+ )?differences|true for you|about (?:you|yourself)|your (?:own|family|life|town|city|country|school|friends?|favourite|ideas?|experience)|tell (?:your partner|the class|each other) about|discuss)\b/,
+      repro: /\b(practise the (?:dialogue|conversation)|act out the (?:dialogue|conversation)|read the (?:dialogue|conversation) (?:in pairs|aloud|with)|learn (?:it )?by heart|repeat|say it|read aloud|read out|retell)\b/,
+      intro: /\b(listen and read|read and listen|look at the (?:rule|grammar|examples?)|notice|complete the (?:rule|grammar (?:box|table))|what do you notice|underline (?:all )?(?:the )?(?:examples?|verbs?|forms?)|find (?:all )?(?:the )?(?:examples?|verbs?|forms?|adjectives?|nouns?|phrases?) (?:of|in)|work out the rule)\b/,
+      textRef: /\b(the (?:text|article|story|recording|dialogue|interview|conversation|email|letter|passage|extract|podcast|blog|report|song|poem|advert|programme)|read|listen)\b/,
+      pre: /\b(before you (?:read|listen|watch)|predict|look at the (?:title|heading|pictures?|photos?|headline) and (?:guess|predict|say what|discuss|think|answer)|what do you know about|guess what the|think about the topic)\b/,
+      post: /\b(after (?:reading|listening|you read|you listen)|retell|summari[sz]e|in your own words|write (?:a )?(?:similar|reply|response|summary)|discuss the (?:text|article|story)|role-?play the (?:situation|conversation) (?:from|in) the)\b/,
+      again: /\b(again|second time|once more)\b/
+    }
+  };
+  /* Рубрика урока – оценивается урок целиком, а не отдельная инструкция (sol06, с. 57-60) */
+  R.LESSON_RUBRIC_VERSION = 'rubric-l-0.1';
+  R.LESSON_RUBRIC = [
+    { code: 'L1', name: _t('Последовательность упражнений'), q: _t('Служит ли каждое упражнение опорой для следующего? Идёт ли урок от простого к сложному и от тренировки к выходу в речь? Если порядок иной (задание, затем анализ языка), оправдан ли он целью урока?'),
+      a: [_t('0 – упражнения расположены случайно, речевые задания не подготовлены'), _t('1 – логика в целом есть, но есть неподготовленные переходы или пропущен этап'), _t('2 – каждое упражнение готовит следующее, этапы выдержаны или отступление оправдано целью')] },
+    { code: 'L2', name: _t('Соответствие цели урока'), q: _t('Работает ли набор упражнений на ведущую практическую цель урока? Достаточно ли упражнений для её достижения и нет ли лишних?'),
+      a: [_t('0 – упражнения не связаны с целью урока или цель не угадывается'), _t('1 – большая часть упражнений работает на цель, но есть лишние или не хватает нужных'), _t('2 – упражнения работают на цель урока')] }
   ];
 
   g.IA_RES = R;

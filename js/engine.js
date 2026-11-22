@@ -1,11 +1,12 @@
-/* Движок режима «Инструкции». Версия engine-0.3 (необязательный синтаксический разбор, повелительное наклонение не входит в A2).
+/* Движок режима «Инструкции». Версия engine-0.4 (необязательное поле aim – цель урока – для методики упражнений; показатели не изменились).
+   engine-0.3 – необязательный синтаксический разбор, повелительное наклонение не входит в A2.
    Общие шаги (лексикон, лемматизация, токенизация, грамматика, A7, статистика, CSV)
    выполняет ядро core.js – режим «Тексты» использует тот же код.
    Работает в браузере и в node (для проверок). */
 (function (g) {
   const _t = g._t || (s => s);
   const R = g.IA_RES, C = g.IA_CORE;
-  const VERSION = 'engine-0.3';
+  const VERSION = 'engine-0.4';
   const { LV, LVN, lvNum, lvName, clamp, num, makeLexicon, parseUserLexicon, tokenize, lexicalUnits, grammar,
     levelUnits, levelGrammar, lexProfile, lexLevel, grammarLevel, introduction, readability,
     orderRecords, assignIds, labelOf, sameUnit, describe, agreement, weightedKappa, fmt, pct, plural, list, parseCSV, toCSV,
@@ -467,18 +468,21 @@
     unit: /^(unit|lesson|урок|раздел учебника|модуль)$/, section: /^(section|раздел|part|часть)$/,
     ex: /^(ex|exercise|упражнение|номер|№|no)$/, aspect: /^(aspect|аспект|skill|вид речевой деятельности)$/,
     audience: /^(audience|аудитория|целевая аудитория)$/, l1: /^(l1|родной язык|язык-посредник|native language)$/,
-    exercise_text: /^(exercise_text|exercise text|текст упражнения|материал)$/
+    exercise_text: /^(exercise_text|exercise text|текст упражнения|материал)$/,
+    aim: /^(aim|lesson aim|lesson_aim|цель|цель урока)$/
   };
   function recordsFromCSV(text) { return C.recordsByFields(text, FIELDS, 'text'); }
   function recordsFromText(text, defaults) {
-    const out = []; let unit = defaults.unit || '', section = defaults.section || '';
+    const out = []; let unit = defaults.unit || '', section = defaults.section || '', aim = '';
     String(text || '').split(/\r?\n/).forEach(line => {
       const l = line.trim(); if (!l) return;
       const mu = l.match(/^#*\s*(unit|lesson|урок|module|модуль)\s*([\w.]+)\s*[:.–-]?\s*(.*)$/i);
-      if (mu && !/\b(read|write|complete|listen|match)\b/i.test(mu[3])) { unit = mu[1].charAt(0).toUpperCase() + mu[1].slice(1).toLowerCase() + ' ' + mu[2]; section = mu[3] || ''; return; }
+      if (mu && !/\b(read|write|complete|listen|match)\b/i.test(mu[3])) { unit = mu[1].charAt(0).toUpperCase() + mu[1].slice(1).toLowerCase() + ' ' + mu[2]; section = mu[3] || ''; aim = ''; return; }
+      const ma = l.match(/^(?:lesson aim|aim|цель урока|цель)\s*[:–-]\s*(.+)$/i);
+      if (ma) { aim = ma[1].trim(); out.forEach(o => { if (o.unit === unit && !o.aim) o.aim = aim; }); return; }
       if (/^#/.test(l)) { section = l.replace(/^#+\s*/, ''); return; }
       const me = l.match(/^(?:ex(?:ercise)?\.?\s*)?(\d+[a-z]?)\s*[.)]\s+(.*)$/i);
-      out.push(Object.assign({}, defaults, { unit, section, ex: me ? me[1] : '', text: me ? me[2] : l }));
+      out.push(Object.assign({}, defaults, { unit, section, ex: me ? me[1] : '', text: me ? me[2] : l }, aim ? { aim } : {}));
     });
     return out;
   }

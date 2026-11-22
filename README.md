@@ -57,7 +57,7 @@ The block at the top of the Data tab reads a textbook and finds units, exercise 
 | D4 | Ambiguity | heuristic signs (match without a pair, gaps without a word source) |
 | PCI | Perception complexity index | weighted mean of A1-A4 |
 
-Rubric criteria rated by an expert and a language model – R1 clarity, R2 instruction verb, R3 exercise type, R4 communicative situation, R5 model, R6 level of instruction and task, D1 parameters, D2 mode of work, D4 unambiguity, D5 language of instruction.
+Rubric criteria rated by an expert and a language model – R1 clarity, R2 instruction verb, R3 exercise type, R4 communicative situation, R5 model, R6 level of instruction and task, R7 task appropriateness, D1 parameters, D2 mode of work, D4 unambiguity, D5 language of instruction. Unit rubric – L1 sequence of exercises, L2 match with the unit aim.
 
 **Texts**
 
@@ -75,6 +75,10 @@ Rubric for texts – TR1 topic and task, TR2 authenticity, TR3 cultural accessib
 
 Full formulas are on the Method tab.
 
+## Exercise methodology
+
+Each instruction receives an exercise type on the scale of learner freedom used in Russian methodology – substitution, transformation, conditionally communicative and genuinely communicative (Solovova, 2006, p. 32), which corresponds to controlled, guided and communicative practice. The tool also assigns the stage of work on material (presentation, practice, production), the text stage (pre-, while-, post-text) and the unit of material. From the order of exercises it builds a unit profile and marks jumps, returns, a missing production stage and text-stage order problems. The unit sequence index (USI, 0-1) points to units for expert review; it is not a verdict, since task-first sequences (boomerang, test-teach-test) are legitimate. Task appropriateness (R7) and unit sequence (L1, L2) are rated by experts and the language model. The unit aim is an optional `aim` column. The rationale is in section 7 of `docs/methodology.md` (in Russian).
+
 ## Language model (optional)
 
 - **Via Groq** – create an API key at console.groq.com and enter it on the Settings tab. The key is stored only in the browser and never goes into exports or the repository.
@@ -88,7 +92,7 @@ Without a parse, grammar and subordinate clauses are found by rules. For researc
 
 ## Data formats
 
-- **Instructions CSV** – fields `book;level;unit;ex;text` (required) and `section;aspect;audience;l1;exercise_text;publisher;year` (optional). Separator – semicolon, comma or tab. See `examples/sample-instructions.csv`.
+- **Instructions CSV** – fields `book;level;unit;ex;text` (required) and `section;aspect;audience;l1;exercise_text;aim;publisher;year` (optional; `aim` – unit aim). Separator – semicolon, comma or tab. See `examples/sample-instructions.csv`.
 - **Manual input** – one instruction per line; a line `Unit 2` starts a unit, `3. Complete the…` sets exercise 3.
 - **Textbook vocabulary list** – CSV `book;unit;word` (book optional).
 - **Texts CSV** – `book;level;unit;ex;text_type;title;source;text`; text type is reading, listening, dialogue or material. See `examples/sample-texts.csv`.
@@ -120,22 +124,23 @@ js/cefrj.js           built-in CEFR-J Wordlist 1.5, Octanove C1/C2 and CEFR-J Gr
 js/lexicon.js         built-in working vocabulary list (fallback)
 js/core.js            shared core – lexicon, lemmatisation, tokenisation, grammar, levels, vocabulary profile, A7, readability, MTLD, statistics, kappa, CSV
 js/engine.js          Instructions mode – A1-A7, D1, D3, D4, PCI, statistics, conclusions
+js/method.js          exercise methodology – type on the scale of learner freedom, stage, text stage, unit of material, unit sequence and USI
 js/texts.js           Texts mode – T1-T4, level estimate, TCI, paragraphs, instruction-text pairs, conclusions
 js/parse.js           CoNLL-U reading and rule refinement by the parse
 js/docx.js            reading .docx in the browser
 js/import.js          import from a textbook – PDF, DOCX, HTML, TXT and instruction detection
 js/vendor/            pdf.js 6.2.108 (Mozilla, Apache-2.0)
-js/ui.js, ui-texts.js, ui-import.js   interface
+js/ui.js, ui-texts.js, ui-import.js, ui-method.js   interface
 js/sample.js          sample data
 examples/             sample instructions, texts and vocabulary list (CSV)
 data/                 source CSV files of CEFR-J and Octanove with terms of use
 docs/                 user guide and methodology (in Russian)
 tools/parse_texts.py  spaCy or Stanza parse to CoNLL-U
-tests/                reproducibility check (`node tests/regress.js`), grammar test sentences, sample parse
+tests/                reproducibility check (`node tests/regress.js`), exercise methodology cases (`node tests/method-cases.js`), grammar test sentences, sample parse
 ```
 
 The core and both engines run in the browser and in Node.js. `node tests/regress.js` compares the numbers of both modes on the sample with `tests/snapshot.json`.
 
 ## Versions
 
-core-0.4 · parse-0.1 · engine-0.3 · texts-0.2 · res-0.4 · rubric-0.1 · rubric-t-0.1 · prompt-0.1 · prompt-t-0.1 · import-0.1 · i18n-0.1 · ui-0.7
+core-0.4 · parse-0.1 · engine-0.4 · texts-0.2 · res-0.5 · method-0.1 · rubric-0.2 · rubric-t-0.1 · rubric-l-0.1 · prompt-0.2 · prompt-t-0.1 · prompt-l-0.1 · import-0.1 · i18n-0.1 · ui-0.8 · ui-m-0.1
