@@ -1,0 +1,133 @@
+# newdoc id = d1
+# doc_text = "They read the book yesterday. She lives in a small town."
+# parser = образец в метках spaCy, размечен вручную
+# sent_id = d1-1
+# text = They read the book yesterday.
+1	They	they	PRON	PRP	_	2	nsubj	_	_
+2	read	read	VERB	VBD	_	0	ROOT	_	_
+3	the	the	DET	DT	_	4	det	_	_
+4	book	book	NOUN	NN	_	2	dobj	_	_
+5	yesterday	yesterday	NOUN	NN	_	2	npadvmod	_	_
+6	.	.	PUNCT	.	_	2	punct	_	_
+
+# sent_id = d1-2
+# text = She lives in a small town.
+1	She	she	PRON	PRP	_	2	nsubj	_	_
+2	lives	live	VERB	VBZ	_	0	ROOT	_	_
+3	in	in	ADP	IN	_	2	prep	_	_
+4	a	a	DET	DT	_	6	det	_	_
+5	small	small	ADJ	JJ	_	6	amod	_	_
+6	town	town	NOUN	NN	_	3	pobj	_	_
+7	.	.	PUNCT	.	_	2	punct	_	_
+
+# newdoc id = d2
+# doc_text = "Underline the verbs used in the past."
+# parser = образец в метках spaCy, размечен вручную
+# sent_id = d2-1
+# text = Underline the verbs used in the past.
+1	Underline	underline	VERB	VB	_	0	ROOT	_	_
+2	the	the	DET	DT	_	3	det	_	_
+3	verbs	verb	NOUN	NNS	_	1	dobj	_	_
+4	used	use	VERB	VBN	_	3	acl	_	_
+5	in	in	ADP	IN	_	4	prep	_	_
+6	the	the	DET	DT	_	7	det	_	_
+7	past	past	NOUN	NN	_	5	pobj	_	_
+8	.	.	PUNCT	.	_	1	punct	_	_
+
+# newdoc id = d3
+# doc_text = "Read the email Tom wrote to his friend."
+# parser = образец в метках spaCy, размечен вручную
+# sent_id = d3-1
+# text = Read the email Tom wrote to his friend.
+1	Read	read	VERB	VB	_	0	ROOT	_	_
+2	the	the	DET	DT	_	3	det	_	_
+3	email	email	NOUN	NN	_	1	dobj	_	_
+4	Tom	Tom	PROPN	NNP	_	5	nsubj	_	_
+5	wrote	write	VERB	VBD	_	3	relcl	_	_
+6	to	to	ADP	IN	_	5	prep	_	_
+7	his	his	PRON	PRP$	_	8	poss	_	_
+8	friend	friend	NOUN	NN	_	6	pobj	_	_
+9	.	.	PUNCT	.	_	1	punct	_	_
+
+# newdoc id = d4
+# doc_text = "She made her brother repeat the words.\nI was tired because I had worked all day."
+# parser = образец в метках spaCy, размечен вручную
+# sent_id = d4-1
+# text = She made her brother repeat the words.
+1	She	she	PRON	PRP	_	2	nsubj	_	_
+2	made	make	VERB	VBD	_	0	ROOT	_	_
+3	her	her	PRON	PRP$	_	4	poss	_	_
+4	brother	brother	NOUN	NN	_	5	nsubj	_	_
+5	repeat	repeat	VERB	VB	_	2	ccomp	_	_
+6	the	the	DET	DT	_	7	det	_	_
+7	words	word	NOUN	NNS	_	5	dobj	_	_
+8	.	.	PUNCT	.	_	2	punct	_	_
+
+# sent_id = d4-2
+# text = I was tired because I had worked all day.
+1	I	I	PRON	PRP	_	2	nsubj	_	_
+2	was	be	AUX	VBD	_	0	ROOT	_	_
+3	tired	tired	ADJ	JJ	_	2	acomp	_	_
+4	because	because	SCONJ	IN	_	7	mark	_	_
+5	I	I	PRON	PRP	_	7	nsubj	_	_
+6	had	have	AUX	VBD	_	7	aux	_	_
+7	worked	work	VERB	VBN	_	2	advcl	_	_
+8	all	all	DET	DT	_	9	det	_	_
+9	day	day	NOUN	NN	_	7	npadvmod	_	_
+10	.	.	PUNCT	.	_	2	punct	_	_
+
+# newdoc id = d5
+# parser = образец в метках UD (Stanza), размечен вручную
+# sent_id = d5-1
+# text = The teacher let the students choose a topic.
+1	The	the	DET	DT	_	2	det	_	_
+2	teacher	teacher	NOUN	NN	_	3	nsubj	_	_
+3	let	let	VERB	VBD	_	0	root	_	_
+4	the	the	DET	DT	_	5	det	_	_
+5	students	student	NOUN	NNS	_	3	obj	_	_
+6	choose	choose	VERB	VB	_	3	xcomp	_	_
+7	a	a	DET	DT	_	8	det	_	_
+8	topic	topic	NOUN	NN	_	6	obj	_	_
+9	.	.	PUNCT	.	_	3	punct	_	_
+
+# newdoc id = d6
+# parser = образец в метках UD (Stanza), размечен вручную
+# sent_id = d6-1
+# text = I heard her sing when I was in the garden.
+1	I	I	PRON	PRP	_	2	nsubj	_	_
+2	heard	hear	VERB	VBD	_	0	root	_	_
+3	her	she	PRON	PRP	_	2	obj	_	_
+4	sing	sing	VERB	VB	_	2	xcomp	_	_
+5	when	when	ADV	WRB	_	10	advmod	_	_
+6	I	I	PRON	PRP	_	10	nsubj	_	_
+7	was	be	AUX	VBD	_	10	cop	_	_
+8	in	in	ADP	IN	_	10	case	_	_
+9	the	the	DET	DT	_	10	det	_	_
+10	garden	garden	NOUN	NN	_	2	advcl	_	_
+11	.	.	PUNCT	.	_	2	punct	_	_
+
+# sent_id = d6-2
+# text = The book that you gave me is interesting.
+1	The	the	DET	DT	_	2	det	_	_
+2	book	book	NOUN	NN	_	8	nsubj	_	_
+3	that	that	PRON	WDT	_	5	obj	_	_
+4	you	you	PRON	PRP	_	5	nsubj	_	_
+5	gave	give	VERB	VBD	_	2	acl:relcl	_	_
+6	me	I	PRON	PRP	_	5	iobj	_	_
+7	is	be	AUX	VBZ	_	8	cop	_	_
+8	interesting	interesting	ADJ	JJ	_	0	root	_	_
+9	.	.	PUNCT	.	_	8	punct	_	_
+
+# newdoc id = d7
+# doc_text = "The students selected will take part."
+# parser = образец в метках spaCy, размечен вручную
+# sent_id = d7-1
+# text = The students selected will take part.
+1	The	the	DET	DT	_	2	det	_	_
+2	students	student	NOUN	NNS	_	5	nsubj	_	_
+3	selected	select	VERB	VBN	_	2	acl	_	_
+4	will	will	AUX	MD	_	5	aux	_	_
+5	take	take	VERB	VB	_	0	ROOT	_	_
+6	part	part	NOUN	NN	_	5	dobj	_	_
+7	.	.	PUNCT	.	_	5	punct	_	_
+

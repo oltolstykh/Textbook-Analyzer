@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Анализатор учебника</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Literata:opsz,wght@7..72,400;7..72,600&display=swap" rel="stylesheet">
+<style>
+/* VOICE – спокойный исследовательский инструмент, точный и сдержанный
+   IDEA – корректурный лист: инструкция под карандашом редактора, тепловая карта как печатная таблица
+   PICTURE – сама тепловая карта и инструкция крупным планом
+   COLOUR and TYPE – белая бумага, чернила, одна оранжево-коричневая гамма тепла, глубокий бирюзовый для грамматики; Literata для инструкций, IBM Plex Sans для интерфейса
+   LAYOUT – шапка с вкладками, рабочая область во всю ширину, карточка инструкции выезжает справа */
+:root{color-scheme:light;--bg:#ffffff;--paper:#faf8f5;--ink:#1d1b18;--mute:#6b665e;--line:#e4dfd7;--line2:#cfc8bd;
+--teal:#0d5c63;--teal2:#e3f0f0;--h1:#fdebd3;--h2:#fbcf9f;--h3:#f5a35f;--h4:#e0712f;--h5:#a8460f;--focus:#0d5c63}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+h1,h2,h3{font-weight:600;line-height:1.15;margin:0}
+h2{font-size:22px;margin-bottom:14px}h3{font-size:16px;margin:22px 0 8px}
+p{margin:0 0 10px;max-width:75ch}
+a{color:var(--teal)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.serif{font-family:Literata,Georgia,serif}
+.mute{color:var(--mute)}.small{font-size:13px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;padding:14px max(3vw,16px) 6px}
+.top h1{font-size:20px}
+.top .corpus{font-size:13px;color:var(--mute)}
+nav.tabs{display:flex;gap:2px;overflow-x:auto;padding:0 max(3vw,16px)}
+nav.tabs button{flex:none;border:0;background:none;padding:10px 14px 9px;border-bottom:3px solid transparent;color:var(--mute);font-weight:500;min-height:44px}
+nav.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink)}
+nav.tabs button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.cell:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+main{padding:20px max(3vw,16px) 60px}
+section.view{display:none}section.view.on{display:block}
+.btn{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:8px 14px;border:1px solid var(--line2);background:#fff;border-radius:6px;font-weight:500}
+.btn:hover{background:var(--paper)}
+.btn.pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+.btn.pri:hover{background:#3a362f}
+.btn.sm{min-height:32px;padding:4px 10px;font-size:13px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:6px;overflow:hidden}
+.seg button{border:0;background:#fff;padding:7px 12px;min-height:36px;font-size:14px;border-right:1px solid var(--line2)}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed=true]{background:var(--ink);color:#fff}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+input[type=range]{accent-color:var(--teal);min-height:auto;padding:0;border:0}
+label.f input,label.f select,label.f textarea,.inp{font-size:15px;color:var(--ink);padding:8px 10px;border:1px solid var(--line2);border-radius:6px;background:#fff;min-height:40px}
+textarea{width:100%;resize:vertical;font-family:Literata,Georgia,serif;font-size:15px;line-height:1.55;padding:10px 12px;border:1px solid var(--line2);border-radius:6px}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:4px 0}
+.chk input{width:18px;height:18px;margin-top:2px;accent-color:var(--teal)}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,330px),1fr));gap:18px 28px}
+.box{border:1px solid var(--line);border-radius:8px;padding:16px 18px;background:#fff}
+.box.paper{background:var(--paper)}
+.note{font-size:13px;color:var(--mute);margin-top:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin-bottom:18px}
+.kpi{background:#fff;padding:12px 16px}
+.kpi b{display:block;font-size:clamp(24px,3vw,32px);font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi span{font-size:13px;color:var(--mute)}
+/* тепловая карта */
+.mapbar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-bottom:12px}
+.legend{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mute);flex-wrap:wrap}
+.legend i{display:inline-block;width:22px;height:14px;border:1px solid var(--line)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-size:12px;font-weight:600;color:var(--mute)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+table.heat{border-collapse:separate;border-spacing:2px;width:auto;min-width:100%}
+table.heat th{border:0;padding:4px 4px;white-space:nowrap;vertical-align:bottom}
+table.heat th.cg{text-align:center;font-size:12px;color:var(--ink);border-bottom:2px solid var(--ink)}
+table.heat td{border:0;padding:0;vertical-align:middle}
+table.heat th.n{text-align:center}
+table.heat td .cell{margin:0 auto}
+table.heat td.lab{padding:4px 10px 4px 2px;min-width:240px;max-width:420px;cursor:pointer}
+table.heat td.lab .t{font-family:Literata,Georgia,serif;font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+table.heat td.lab .m{font-size:12px;color:var(--mute)}
+table.heat tr.bk td{padding:16px 2px 4px;font-weight:600;font-size:14px;border-bottom:1px solid var(--line2)}
+table.heat tr.un td{padding:8px 2px 2px;font-size:12px;color:var(--mute);font-weight:600}
+table.heat tr:hover td.lab .t{text-decoration:underline;text-decoration-color:var(--line2)}
+.cell{width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-variant-numeric:tabular-nums;border-radius:3px;border:0;background:#fff;box-shadow:inset 0 0 0 1px var(--line);padding:0}
+.cell.dark{color:#fff}
+.hatch{background:repeating-linear-gradient(135deg,#fff 0 4px,#e8e4dd 4px 5px)!important;color:transparent}
+.nodata{background:repeating-linear-gradient(45deg,#fff 0 5px,#eeeae4 5px 6px)!important;color:transparent}
+td.sep{width:10px}
+/* карточка */
+.drawer{position:fixed;inset:0 0 0 auto;width:min(720px,100%);background:#fff;border-left:1px solid var(--line2);box-shadow:-12px 0 32px rgba(0,0,0,.08);z-index:40;transform:translateX(102%);transition:transform .22s ease;display:flex;flex-direction:column}
+.drawer.on{transform:none}
+.drawer .dh{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.drawer .db{overflow:auto;padding:16px 18px 40px}
+.scrim{position:fixed;inset:0;background:rgba(29,27,24,.18);z-index:30;display:none}
+.scrim.on{display:block}
+@media (prefers-reduced-motion:reduce){.drawer{transition:none}}
+.closeup{font-family:Literata,Georgia,serif;font-size:21px;line-height:1.85;padding:16px 18px;background:var(--paper);border-radius:8px;margin:6px 0 10px}
+.closeup .lx1{background:var(--h2);border-radius:3px;box-shadow:0 0 0 2px var(--h2)}
+.closeup .lx2{background:var(--h4);color:#fff;border-radius:3px;box-shadow:0 0 0 2px var(--h4)}
+.closeup .lxi{background:linear-gradient(transparent 62%,var(--h1) 62%)}
+.closeup .unk{box-shadow:inset 0 -2px 0 #b9b2a6}
+.closeup .gr{text-decoration:underline;text-decoration-color:var(--teal);text-decoration-thickness:2px;text-underline-offset:5px}
+.closeup .mt{border-bottom:2px dotted var(--ink)}
+.closeup span[data-u]{cursor:help}
+.keys{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--mute);margin-bottom:14px}
+.keys span{display:inline-flex;gap:6px;align-items:center}
+.sw{display:inline-block;width:18px;height:12px;border-radius:2px}
+.bars{display:grid;grid-template-columns:minmax(0,150px) minmax(0,1fr) 46px;gap:6px 10px;align-items:center;font-size:13px;margin:8px 0 14px}
+.bar{height:12px;background:#f1ede7;border-radius:2px;position:relative;overflow:hidden}
+.bar i{position:absolute;inset:0 auto 0 0}
+.bar.na{background:repeating-linear-gradient(135deg,#fff 0 4px,#e8e4dd 4px 5px)}
+.issues{margin:0;padding-left:18px}.issues li{margin-bottom:6px}
+.tag{display:inline-block;font-size:11px;font-weight:600;padding:1px 6px;border-radius:3px;background:#efeae2;color:var(--ink);margin-right:6px;vertical-align:1px}
+.rw{font-family:Literata,Georgia,serif;font-size:16px;background:var(--teal2);padding:10px 14px;border-radius:6px}
+.tip{position:fixed;z-index:60;max-width:300px;background:var(--ink);color:#fff;font-size:13px;line-height:1.45;padding:8px 10px;border-radius:6px;pointer-events:none;display:none}
+.tip b{font-weight:600}
+/* статистика */
+.sbar{display:flex;height:26px;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.sbar i{display:block;height:100%}
+.hbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,2fr) 40px;gap:4px 10px;align-items:center;font-size:13px}
+.hbar .b{height:10px;background:var(--h3);border-radius:2px}
+.concl p{font-size:16px;line-height:1.6}
+.concl h3{font-size:15px;margin:18px 0 4px}
+.rub{display:grid;gap:12px}
+.rq{border:1px solid var(--line);border-radius:8px;padding:12px 14px}
+.rq .q{font-size:14px;margin:4px 0 8px}
+.rq .opts{display:flex;flex-wrap:wrap;gap:6px}
+.rq .opts label{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:6px;padding:6px 10px;min-height:36px;font-size:14px;cursor:pointer}
+.rq .opts input{accent-color:var(--teal)}
+.rq .anchors{font-size:12px;color:var(--mute);margin-top:6px}
+.diff{background:#fff3e6;border-radius:3px;padding:0 3px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:6px;font-size:14px;z-index:70;display:none}
+.method h3{margin-top:26px}.method code{background:var(--paper);padding:1px 4px;border-radius:3px;font-size:13px}
+.empty{padding:40px 0;color:var(--mute);font-size:16px}
+label.f input[type=range]{padding:0;border:0;min-height:28px;accent-color:var(--teal);background:none}
+/* режим «Тексты» */
+.seg.mode button{font-weight:600;padding:6px 14px}
+.seg.lang button{font-size:13px;font-weight:600;padding:4px 10px;min-height:30px}
+.paras .para{position:relative;padding:4px 0 4px 16px;margin:0 0 12px;border-left:5px solid var(--line)}
+.paras .para .pn{position:absolute;left:-2px;top:-14px;font:600 11px/1 "IBM Plex Sans",sans-serif;color:var(--mute);background:var(--paper);padding:0 3px}
+.closeup .spk{font-weight:600;color:var(--teal)}
+.lvcell{width:52px;height:34px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;border-radius:3px;box-shadow:inset 0 0 0 1px var(--line);background:#fff;border:0;padding:0}
+.lvcell.dark{color:#fff}
+.cell.neg{color:var(--mute)}
+.txt-prev{max-height:220px;overflow:auto;white-space:pre-wrap}
+.form-text{min-height:180px}
+table.tight td,table.tight th{padding:4px 6px}
+.covbar{display:grid;grid-template-columns:repeat(6,1fr);gap:2px;margin-top:8px}
+.covbar div{font-size:12px;text-align:center;padding:4px 0;border-radius:3px;box-shadow:inset 0 0 0 1px var(--line)}
+@media (max-width:600px){.lvcell{width:40px;height:30px;font-size:11px}.top h1{font-size:17px}}
+@media (max-width:600px){.cell{width:40px;height:30px;font-size:11px}table.heat td.lab{min-width:160px;max-width:200px}.closeup{font-size:18px}.bars{grid-template-columns:minmax(0,110px) minmax(0,1fr) 40px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>Анализатор учебника</h1>
+    <div class="seg mode" id="modeSeg" role="group" aria-label="Режим анализа"><button data-mode="instr" aria-pressed="true">Инструкции</button><button data-mode="texts" aria-pressed="false">Тексты</button></div>
+    <span class="corpus" id="corpusLine">Нет данных</span>
+    <div class="seg lang" id="langSeg" role="group" aria-label="Язык интерфейса" style="margin-left:auto"><button data-lang="ru" aria-pressed="true" lang="ru">RU</button><button data-lang="en" aria-pressed="false" lang="en">EN</button></div>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button role="tab" data-v="map" aria-selected="true">Тепловая карта</button>
+    <button role="tab" data-v="stats">Статистика</button>
+    <button role="tab" data-v="concl">Выводы</button>
+    <button role="tab" data-v="data">Данные</button>
+    <button role="tab" data-v="settings">Настройки</button>
+    <button role="tab" data-v="rubric">Рубрика</button>
+    <button role="tab" data-v="method">Методика</button>
+  </nav>
+</header>
+<main>
+  <section class="view on" id="v-map"></section>
+  <section class="view" id="v-stats"></section>
+  <section class="view" id="v-concl"></section>
+  <section class="view" id="v-data">
+   <div id="dataTexts" hidden></div>
+   <div id="dataInstr">
+    <h2>Инструкции для анализа</h2>
+    <div class="box paper" id="impBox" style="margin-bottom:24px"></div>
+    <h3>Ввести вручную или загрузить таблицу</h3>
+    <div class="row" style="margin-bottom:12px">
+      <div class="seg" id="inMode"><button aria-pressed="true" data-m="text">Текст</button><button aria-pressed="false" data-m="csv">Таблица CSV</button></div>
+      <button class="btn" id="btnSample">Загрузить пример</button>
+      <button class="btn" id="btnClear">Очистить</button>
+    </div>
+    <div id="inText">
+      <div class="grid2" style="margin-bottom:12px">
+        <label class="f">Учебник<input id="tBook" placeholder="Название, издательство, год"></label>
+        <label class="f">Заявленный уровень<select id="tLevel"></select></label>
+        <label class="f">Аспект (необязательно)<input id="tAspect" placeholder="грамматика, чтение…"></label>
+        <label class="f">Аудитория и язык группы (необязательно)<input id="tAud" placeholder="студенты, китайский"></label>
+      </div>
+      <textarea id="txtIn" rows="12" placeholder="Одна инструкция в строке.&#10;Строка «Unit 2» начинает новый урок, «3. Complete the…» – упражнение 3."></textarea>
+      <p class="note">Строка вида <code>Unit 2</code> или <code>## Unit 2</code> задаёт урок, цифра с точкой в начале строки – номер упражнения.</p>
+    </div>
+    <div id="inCsv" hidden>
+      <div class="row" style="margin-bottom:8px"><input type="file" id="csvFile" accept=".csv,.tsv,.txt" class="inp"></div>
+      <textarea id="csvIn" rows="12" placeholder="book;level;unit;section;ex;aspect;text;exercise_text"></textarea>
+      <p class="note">Поля – book, level, publisher, year, unit, section, ex, aspect, audience, l1, text, exercise_text (допустимы русские названия – учебник, уровень, урок, упражнение, текст инструкции). Разделитель – точка с запятой, запятая или табуляция.</p>
+    </div>
+    <div class="row" style="margin:14px 0 22px"><button class="btn pri" id="btnRun">Анализировать</button><span class="mute small" id="runInfo"></span></div>
+    <h3>Загруженные инструкции</h3>
+    <div class="scroll" id="preview"></div>
+   </div>
+    <div class="box paper" style="margin-top:24px">
+      <h3 style="margin-top:0">Словник учебника для критерия A7 (по желанию, общий для инструкций и текстов)</h3>
+      <p class="small mute">CSV с полями book (необязательно), unit, word. Слово выше уровня, введённое в словнике в этом или более раннем уроке, не считается превышением ни в инструкциях, ни в текстах.</p>
+      <div class="row"><input type="file" id="vocFile" accept=".csv,.tsv,.txt" class="inp"><button class="btn sm" id="vocSample">Пример словника</button><button class="btn sm" id="vocClear">Убрать словник</button><span class="small mute" id="vocInfo"></span></div>
+    </div>
+    <div class="box paper" style="margin-top:18px" id="parseBox"></div>
+  </section>
+  <section class="view" id="v-settings"></section>
+  <section class="view" id="v-rubric"></section>
+  <section class="view method" id="v-method"></section>
+</main>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Карточка"><div class="dh"><div id="dTitle"></div><button class="btn sm" id="dClose">Закрыть</button></div><div class="db" id="dBody"></div></aside>
+<div class="tip" id="tip"></div>
+<div class="toast" id="toast"></div>
+<script src="js/i18n-en.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/resources.js"></script>
+<script src="js/lexicon.js"></script>
+<script src="js/cefrj.js"></script>
+<script src="js/parse.js"></script>
+<script src="js/core.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/texts.js"></script>
+<script src="js/docx.js"></script>
+<script src="js/import.js"></script>
+<script src="js/sample.js"></script>
+<script src="js/ui-texts.js"></script>
+<script src="js/ui-import.js"></script>
+<script src="js/ui.js"></script>
+</body>
+</html>
