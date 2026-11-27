@@ -1,4 +1,5 @@
-/* Интерфейс анализатора инструкций и текстов. Версия ui-0.8 (методика упражнений – ui-method.js: тип и этап упражнения, вид «Последовательность урока», рубрика урока L1-L2, критерий R7).
+/* Интерфейс анализатора инструкций и текстов. Версия ui-0.9 (методические рекомендации – ui-rec.js: вкладка «Рекомендации», блок карточки, конкретизация моделью).
+   ui-0.8 – методика упражнений – ui-method.js: тип и этап упражнения, вид «Последовательность урока», рубрика урока L1-L2, критерий R7).
    ui-0.7 – английская версия через i18n.js; импорт – ui-import.js; ключ Groq в «Настройках».
    Режим «Инструкции» – этот файл, режим «Тексты» – ui-texts.js (вкладки те же, содержимое зависит от режима).
    Рубрика, Groq и ручной промпт – общий модуль для обоих режимов. */
@@ -6,7 +7,7 @@
   const _t = window._t || (s => s);
   /* Код критерия и подпись; у индексов (ISV – PCI) в английской версии код и подпись совпадают, поэтому код не повторяется */
   const codeLab = (c, lab, sep) => _t(c) === lab ? '<b>' + lab + '</b>' : '<b>' + _t(c) + '</b>' + sep + lab;
-  const UI_VERSION = 'ui-0.8';
+  const UI_VERSION = 'ui-0.9';
   const E = window.IA_ENGINE, R = window.IA_RES, X = window.IA_TEXTS, C = window.IA_CORE;
   const $ = s => document.querySelector(s);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -35,7 +36,7 @@
       ui: { source: 'algo', view: 'texts', vals: true, book: '*', expert: '', model: '', raterA: '', raterB: '', cur: null, groqModel: '' } };
   }
   (() => { const d = textsDefault(), t = store.texts || {}; store.texts = Object.assign(d, t); ['form', 'ui', 'rubric'].forEach(k => { store.texts[k] = Object.assign(textsDefault()[k], t[k] || {}); }); store.mode = store.mode === 'texts' ? 'texts' : 'instr'; })();
-  let A = null, T = null, P = [], U = [], curCard = null, MA = null;
+  let A = null, T = null, P = [], U = [], curCard = null, MA = null, RCU = null;
   /* Синтаксический разбор хранится отдельно от остальных данных – файл CoNLL-U бывает большим */
   const PARSE_LS = 'textbook-analyzer-parse-v1';
   let PS = null, parseSaved = false;
@@ -71,6 +72,7 @@
     T = trecs.length ? X.analyzeTexts(trecs, store.settings, store.texts.settings, { userLex: store.userLex, vocab: store.vocab, parse: PS }) : null;
     P = A && T ? X.pairs(A.results, T.results, T.settings) : [];
     U = X.unitSummary(A ? A.results : [], T ? T.results : [], P);
+    if (RCU) RCU.compute();
     renderAll();
     const cur = store.mode === 'texts' ? T : A;
     if (!cur && !quiet) toast(store.mode === 'texts' ? _t('Нет текстов для анализа') : _t('Нет инструкций для анализа'));
@@ -79,7 +81,7 @@
   let rt; const rerun = () => { clearTimeout(rt); rt = setTimeout(() => { save(); run(true); }, 250); };
 
   /* ---------- вкладки ---------- */
-  const TABS = { map: 'map', stats: 'stats', conclusions: 'concl', data: 'data', setup: 'settings', rubric: 'rubric', method: 'method' };
+  const TABS = { map: 'map', stats: 'stats', conclusions: 'concl', recommendations: 'rec', data: 'data', setup: 'settings', rubric: 'rubric', method: 'method' };
   const V2H = Object.fromEntries(Object.entries(TABS).map(([h, v]) => [v, h]));
   function show(v) {
     document.querySelectorAll('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.v === v));
@@ -91,7 +93,7 @@
   window.addEventListener('hashchange', () => { const v = TABS[location.hash.slice(1)]; if (v) show(v); });
 
   function renderAll() {
-    renderMode(); renderCorpusLine(); renderMap(); renderStats(); renderConcl(); renderPreview(); TX.renderData(); renderParse(); renderRubric(); renderMethod();
+    renderMode(); renderCorpusLine(); renderMap(); renderStats(); renderConcl(); renderPreview(); TX.renderData(); renderParse(); renderRubric(); renderMethod(); if (RCU) RCU.render();
     if (curCard && findResult(curCard)) reopenCard(curCard); else closeCard();
   }
   function findResult(id) { return (A && A.results.find(r => r.id === id)) || (T && T.results.find(r => r.id === id)) || null; }
@@ -284,6 +286,7 @@
     h += _t('<h3>Показатели</h3>') + bars(r);
     if (MA) h += UM.cardBlock(MA, r);
     h += _t('<h3>Замечания</h3>') + (r.issues.length ? '<ul class="issues">' + r.issues.map(x => '<li><span class="tag">' + x.c + '</span>' + esc(x.t) + '</li>').join('') + '</ul>' : _t('<p class="mute">Алгоритмические критерии не выявили проблем.</p>'));
+    if (RCU) h += RCU.cardBlock(r.id);
     if (r.rewrite) h += _t('<h3>Черновик переформулирования</h3><div class="rw">') + esc(r.rewrite) + _t('</div><div class="row" style="margin-top:6px"><button class="btn sm" data-copy="rw">Копировать</button><span class="small mute">Автоматический черновик – разбивка на шаги и простые замены, требует проверки.</span></div>');
     // рубрика
     h += pairBlock(r);
@@ -331,6 +334,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeCard(); });
   $('#dBody').addEventListener('click', e => {
     const c = e.target.closest('[data-copy]'); if (c) { const r = A.results.find(x => x.id === curCard); copy(r.rewrite); return; }
+    const rg = e.target.closest('[data-rcgo]'); if (rg) { e.preventDefault(); closeCard(); RCU.goLesson(rg.dataset.rcgo); return; }
     const op = e.target.closest('[data-open]'); if (op) { e.preventDefault(); const id = op.dataset.open; if (A && A.results.find(x => x.id === id)) openCard(id); else TX.openCard(id); return; }
     const rt = e.target.closest('[data-rate]'); if (rt) { const m = rt.dataset.rmode || 'instr'; rcfg(m).ui.cur = rt.dataset.rate; closeCard(); if (m !== store.mode) { store.mode = m; save(); renderAll(); renderSettings(); } renderRubric(); show('rubric'); return; }
     const sp = e.target.closest('#cu span[data-u],#cu span[data-g]'); if (sp) showTip(sp, true);
@@ -396,7 +400,7 @@
       results: A.results.map(r => ({ id: r.id, record: r.rec, level: r.targetName, type: r.typeName, formulation: r.key, counts: r.counts, scores: r.scores,
         units: r.units.map(u => ({ text: u.text, lemma: u.lemma, level: u.lv == null ? null : E.lvName(u.lv), source: u.src, tier: u.tier || 0, introduced: u.intro || null, meta: !!u.metaTerm })),
         grammar: r.grammar.map(g => ({ name: g.name, level: g.level, fragment: r.rec.text.slice(g.start, g.end), above: !!g.tier })), meta: r.meta, issues: r.issues, rewrite: r.rewrite })),
-      rubric: store.rubric, conclusions: A.conclusions, method: UM.exportPart(MA) };
+      rubric: store.rubric, conclusions: A.conclusions, method: UM.exportPart(MA), recommendations: RCU ? RCU.exportPart() : null };
     download('instructions-protocol-' + stamp() + '.json', JSON.stringify(out, null, 1), 'application/json');
   }
 
@@ -407,6 +411,7 @@
     const el = $('#v-concl');
     if (!A) { el.innerHTML = _t('<div class="empty">Нет данных.</div>'); return; }
     el.innerHTML = _t('<h2>Выводы</h2><div class="row" style="margin-bottom:10px"><button class="btn" data-c="copy">Копировать</button><button class="btn" data-c="txt">Скачать .txt</button></div>') +
+      '<p class="small"><a href="#recommendations">' + _t('Методические рекомендации учителю и автору по этим выводам – во вкладке «Рекомендации».') + '</a></p>' +
       _t('<p class="small mute">Выводы сформированы автоматически по правилам из рассчитанных показателей. Они описывают зоны, которые требуют экспертного взгляда, и не заменяют экспертную оценку.</p><div class="concl">') +
       A.conclusions.concat(MA ? MA.conclusions : [], T ? X.pairConclusions(P, U) : []).map(c => '<h3><span class="tag">' + _t(c.c) + '</span>' + esc(c.title) + '</h3><p>' + esc(c.text) + '</p>').join('') + '</div>' +
       _t('<p class="note">Протокол – ') + esc(A.meta.engine) + ', ' + esc(A.meta.core) + ', ' + esc(A.meta.resources) + (MA ? ', ' + esc(MA.version) : '') + _t(', список лексики ') + esc(A.meta.lexicon) + ' (' + A.meta.lexiconSize + _t(' ед.), ') + new Date(A.meta.date).toLocaleString(window.IA_I18N ? IA_I18N.locale : 'ru-RU') + '.</p>';
@@ -868,7 +873,7 @@
       _t('<h3>D1, D3, D4</h3><p>D1 проверяет, указаны ли для письменных и устных продуктивных заданий объём, время или число ответов (0 или 1). D3 проверяет, существует ли упражнение, на которое ссылается инструкция, среди загруженных данных (0 или 1, отсылки к рамке, тексту и странице помечаются для ручной проверки). D4 ищет эвристические признаки неоднозначности (match без указания пары, пропуски без источника слов, местоимение без антецедента) – 0,5 за признак.</p>') +
       _t('<h3>Индекс сложности восприятия (ИСВ)</h3><p><code>ИСВ = (wA1·A1 + wA2·A2 + wA3·A3 + wA4·A4) / (wA1 + wA2 + wA3 + wA4)</code>, сейчас веса ') + ['A1', 'A2', 'A3', 'A4'].map(k => k + ' ' + E.fmt(S.weights[k], 2)).join(', ') + _t('. Индекс объединяет лексическую, грамматическую, объёмную и метаязыковую нагрузку на восприятие инструкции учащимся.</p>') +
       _t('<h3>Рубрика и валидация</h3><p>Рубричные баллы 2-1-0 переводятся в 0, 0,5 и 1. Согласованность двух оценщиков рассчитывается как каппа Коэна с квадратичными весами. Рубричные оценки модели признаются надёжными только после сверки с независимыми экспертными оценками.</p>') +
-      UM.docHTML(MA) +
+      UM.docHTML(MA) + (RCU ? RCU.docHTML() : '') +
       _t('<h3>Эталоны и версии</h3><p>Движок ') + E.VERSION + _t(', ядро ') + C.VERSION + _t(', интерфейс ') + UI_VERSION + _t(', импорт ') + (window.IA_IMPORT ? window.IA_IMPORT.VERSION : '—') + _t(', эталоны ') + R.version + _t(', рубрика ') + R.RUBRIC_VERSION + _t(', промпт ') + PROMPT_VERSION + _t(', список лексики – ') + esc(A ? A.meta.lexicon + ' (' + A.meta.lexiconSize + _t(' ед.)') : '') + _t(', уровни грамматики – ') + esc(A ? A.meta.grammarSource : '') + _t('. Источники – ') + (window.IA_CEFRJ ? window.IA_CEFRJ.cite.map(esc).join('; ') : '') + _t('. Протокол JSON сохраняет версии, настройки и все исходные оценки.</p>');
   }
 
@@ -882,13 +887,22 @@
     return '<p class="small" style="margin:8px 0 0">' + rl.map(y => esc(y.x.label) + ' – ' + R.LESSON_RUBRIC.map(q => q.code + ' ' + sv(y.s[q.code])).join(', ')).join('; ') + '</p>';
   }
 
+  /* ---------- методические рекомендации (ui-rec.js) ---------- */
+  RCU = window.IA_UI_REC({
+    $, esc, E, R, store, save, toast, copy, download, stamp, kpi, show: v => show(v), UM,
+    get A() { return A; }, get MA() { return MA; }, get T() { return T; }, get P() { return P; },
+    openInstrCard: id => openCard(id), openTextCard: id => TX.openCard(id),
+    groqKey: () => groqKey(), groqDefaultModel: () => groqDefaultModel(), groqCall: (k, m, c) => groqCall(k, m, c), groqError: e => groqError(e), parseModelJSON: t => parseModelJSON(t)
+  });
+
   /* ---------- режим «Тексты» ---------- */
   const TX = window.IA_UI_TEXTS({
     $, esc, f2, E, R, X, C, LEVELS, HEAT, store, save, toast, copy, download, stamp, readFile, show, kpi, sel, cellHTML, legend, closeup, tipFor,
     raters, raterScores, rubricVal, rcfg, run: q => run(q), rerun: () => rerun(), renderAll: () => renderAll(), renderSettings: () => renderSettings(),
     get A() { return A; }, get T() { return T; }, get P() { return P; }, get U() { return U; },
     setCard: id => { curCard = id; }, closeCard: () => closeCard(), openInstrCard: id => openCard(id),
-    settingsShared: () => sharedSettingsHTML(), parseNote: r => parseNote(r), UI_VERSION, TPROMPT_VERSION
+    settingsShared: () => sharedSettingsHTML(), parseNote: r => parseNote(r), UI_VERSION, TPROMPT_VERSION,
+    recBlock: id => RCU ? RCU.cardBlock(id) : '', recExport: () => RCU ? RCU.exportPart() : null
   });
 
   /* ---------- импорт из учебника ---------- */

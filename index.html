@@ -134,6 +134,10 @@ td.mx-fl{padding:0 4px;vertical-align:middle;white-space:nowrap}.mx-tag{font-wei
 .sbar i{display:block;height:100%}
 .hbar{display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,2fr) 40px;gap:4px 10px;align-items:center;font-size:13px}
 .hbar .b{height:10px;background:var(--h3);border-radius:2px}
+.rc-p1{background:#a8460f;color:#fff}.rc-p2{background:#fbcf9f}.rc-p3{background:#efeae2;color:var(--mute)}.tag.rc-w{background:var(--teal2);color:var(--teal)}
+h4.rc-h{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);margin:14px 0 6px}
+.rc-lesson{margin-bottom:12px}.rc-lesson>summary{cursor:pointer;line-height:1.9}.rc-lesson.rc-hot{border-color:#e0712f;box-shadow:inset 3px 0 0 #e0712f}
+.rc-item{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}.rc-model{background:var(--paper);margin-top:10px}
 .concl p{font-size:16px;line-height:1.6}
 .concl h3{font-size:15px;margin:18px 0 4px}
 .rub{display:grid;gap:12px}
@@ -178,6 +182,7 @@ table.tight td,table.tight th{padding:4px 6px}
     <button role="tab" data-v="map" aria-selected="true">Тепловая карта</button>
     <button role="tab" data-v="stats">Статистика</button>
     <button role="tab" data-v="concl">Выводы</button>
+    <button role="tab" data-v="rec">Рекомендации</button>
     <button role="tab" data-v="data">Данные</button>
     <button role="tab" data-v="settings">Настройки</button>
     <button role="tab" data-v="rubric">Рубрика</button>
@@ -188,6 +193,7 @@ table.tight td,table.tight th{padding:4px 6px}
   <section class="view on" id="v-map"></section>
   <section class="view" id="v-stats"></section>
   <section class="view" id="v-concl"></section>
+  <section class="view" id="v-rec"></section>
   <section class="view" id="v-data">
    <div id="dataTexts" hidden></div>
    <div id="dataInstr">
@@ -243,12 +249,14 @@ table.tight td,table.tight th{padding:4px 6px}
 <script src="js/engine.js"></script>
 <script src="js/method.js"></script>
 <script src="js/texts.js"></script>
+<script src="js/recommend.js"></script>
 <script src="js/docx.js"></script>
 <script src="js/import.js"></script>
 <script src="js/sample.js"></script>
 <script src="js/ui-texts.js"></script>
 <script src="js/ui-import.js"></script>
 <script src="js/ui-method.js"></script>
+<script src="js/ui-rec.js"></script>
 <script src="js/ui.js"></script>
 </body>
 </html>

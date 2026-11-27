@@ -282,6 +282,7 @@ window.IA_UI_TEXTS = function (H) {
       '<tr><td><b>L</b></td><td class="n"><b>' + lvTxt(Lv.est) + _t('</b></td><td class="small mute">взвешенное среднее ') + E.fmt(Lv.raw, 2) + _t(', округлено до половины уровня, заявлен ') + r.targetName + '</td></tr></tbody></table>';
     h += _t('<h3>Профиль лексики</h3>') + profileBlock(r, S);
     h += _t('<h3>Замечания</h3>') + (r.issues.length ? '<ul class="issues">' + r.issues.map(x => '<li><span class="tag">' + x.c + '</span>' + esc(x.t) + '</li>').join('') + '</ul>' : _t('<p class="mute">Алгоритмические показатели не выявили трудностей.</p>'));
+    if (H.recBlock) h += H.recBlock(r.id);
     // инструкции
     const ps = H.P.filter(p => p.text.id === r.id);
     h += _t('<h3>Инструкции к тексту (R6)</h3>');
@@ -376,7 +377,7 @@ window.IA_UI_TEXTS = function (H) {
         grammar: r.grammar.map(g => ({ name: g.name, level: g.level, fragment: r.rec.text.slice(g.start, g.end), above: !!g.tier })), subordinate: r.marks.map(m => m.w), issues: r.issues })),
       pairs: H.P.map(p => ({ instruction: p.instr.id, text: p.text.id, iLex: p.iLex, tLex: p.tLex, iGr: p.iGr, tGr: p.tGr, dLex: p.dLex, dGr: p.dGr, dIdx: p.dIdx, excess: p.excess, R6: p.P, harder: p.harder })),
       units: H.U.map(x => ({ book: x.book, unit: x.unit, instructions: x.I.length, texts: x.T.length, ISV: x.isv, IST: x.ist, delta: x.delta, pairs: x.P.length, harder: x.harder })),
-      rubric: store.texts.rubric, conclusions: T.conclusions.concat(X.pairConclusions(H.P, H.U)) };
+      rubric: store.texts.rubric, conclusions: T.conclusions.concat(X.pairConclusions(H.P, H.U)), recommendations: H.recExport ? H.recExport() : null };
     download('texts-protocol-' + stamp() + '.json', JSON.stringify(out, null, 1), 'application/json');
   }
 
@@ -387,6 +388,7 @@ window.IA_UI_TEXTS = function (H) {
     const el = $('#v-concl'), T = H.T;
     if (!T) { el.innerHTML = _t('<div class="empty">Нет данных.</div>'); return; }
     el.innerHTML = _t('<h2>Выводы по текстам</h2><div class="row" style="margin-bottom:10px"><button class="btn" data-tc="copy">Копировать</button><button class="btn" data-tc="txt">Скачать .txt</button></div>') +
+      '<p class="small"><a href="#recommendations">' + _t('Методические рекомендации учителю и автору по этим выводам – во вкладке «Рекомендации».') + '</a></p>' +
       _t('<p class="small mute">Выводы сформированы автоматически по правилам из рассчитанных показателей. Они описывают зоны, которые требуют экспертного взгляда, и не заменяют экспертную оценку.</p><div class="concl">') +
       conclList().map(c => '<h3><span class="tag">' + _t(c.c) + '</span>' + esc(c.title) + '</h3><p>' + esc(c.text) + '</p>').join('') + '</div>' +
       _t('<p class="note">Протокол – ') + esc(T.meta.texts) + ', ' + esc(T.meta.core) + ', ' + esc(T.meta.resources) + _t(', список лексики ') + esc(T.meta.lexicon) + ' (' + T.meta.lexiconSize + _t(' ед.), ') + new Date(T.meta.date).toLocaleString(window.IA_I18N ? IA_I18N.locale : 'ru-RU') + '.</p>';
